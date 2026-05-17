@@ -17,6 +17,7 @@
 - 지식베이스와 고전 원문 자료실의 한국어 UI
 - 직접 입력, 공유 URL, 최근 명반 복원 경로의 동일한 명반 변환 규칙
 - 합반 API와 기본 해석 API 제공
+- 원본 `Renhuai123/ziwei-doushu` v3 Release 51만+ 샘플 코퍼스 연동
 - Caddy + PM2 운영 배포 구성
 
 ## 한국어 표시 기준
@@ -74,6 +75,29 @@ npm run start
 
 생성된 명반 JSON을 받아 한국어 SSE 해석을 반환합니다.
 
+서버에 원본 v3 샘플 코퍼스가 있으면 먼저 입력 생년월일시와 일치하는 샘플을 찾습니다. 일치 샘플이 있으면 해당 샘플의 13개 topic 구조를 기준으로 한국어 해석을 재구성합니다. 중국어 원문 문장을 그대로 노출하지 않고, 명궁/주제궁/삼방사정/사화/대한 정보를 한국어로 정리합니다.
+
+운영 서버의 기본 코퍼스 위치:
+
+```bash
+/home/reset980/ziwei-data/ziwei-samples-v3/ziwei-samples-toolkit-v3-full.zip
+```
+
+다른 위치를 쓰려면 환경 변수를 지정합니다.
+
+```bash
+ZIWEI_SAMPLE_ZIP=/path/to/ziwei-samples-toolkit-v3-full.zip
+ZIWEI_SAMPLE_DIR=/path/to/extracted/samples-out
+```
+
+원본 Release 정보:
+
+- 태그: `v3.0-samples`
+- 데이터 버전: `2026-04-25`
+- 규모: 51만+ 명반 샘플
+- 압축 파일: 약 5.5GB
+- 원본 SHA256: `21fe90f8737931c63397f38e419bbba6e839b7f8318440ccb747f9bb3e9b1870`
+
 ### `POST /api/heming`
 
 두 명반을 비교해 한국어 합반 요약을 반환합니다.
@@ -122,6 +146,7 @@ Caddy 설정은 `jamidusu.xsw.kr`을 `127.0.0.1:3220`으로 reverse proxy합니�
 | `components/PatternsCard.tsx` | 격국 결과 카드 |
 | `components/insight/InsightPanel.tsx` | 우측 한국어 해석 패널 |
 | `lib/ziwei/algorithm.ts` | iztro 기반 명반 생성 |
+| `lib/ziwei/sample-corpus.ts` | 원본 v3 샘플 코퍼스 조회 및 한국어 해석 재구성 |
 | `lib/ziwei/labels.ts` | 한자 용어 한국어 변환 |
 | `lib/ziwei/share.ts` | URL 공유 파라미터와 진태양시 계산 |
 | `lib/ziwei/cities.ts` | 한국 지역/경도 데이터 |

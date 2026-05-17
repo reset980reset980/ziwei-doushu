@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { Palace, Star, ZiweiChart } from '@/lib/ziwei/types';
 import { detectPatterns, getMingGongSummary } from '@/lib/ziwei/patterns';
 import type { TimeView } from '@/components/TimeNav';
@@ -32,6 +32,8 @@ function majorStars(palace?: Palace) {
 }
 
 export default function InsightPanel({ chart, view, liunianYear, liuyueMonth, focus, onClearFocus }: InsightPanelProps) {
+  const [deepInsight, setDeepInsight] = useState('');
+  const [isLoadingDeepInsight, setIsLoadingDeepInsight] = useState(false);
   const ming = useMemo(() => getMingGongSummary(chart), [chart]);
   const patterns = useMemo(() => detectPatterns(chart), [chart]);
   const current = chart.daXians[chart.currentDaXianIndex];
@@ -48,6 +50,58 @@ export default function InsightPanel({ chart, view, liunianYear, liuyueMonth, fo
     if (focus.type === 'palace') return `${palaceLabel(focus.palace.name)} 선택됨. 주성: ${majorStars(focus.palace)}. 대궁과 삼방사정을 함께 봐야 합니다.`;
     return `${focus.label} 선택됨. 사화는 해당 별의 에너지가 어떤 방식으로 작동하는지 보여주는 운의 표지입니다.`;
   })();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadDeepInsight() {
+      setIsLoadingDeepInsight(true);
+      setDeepInsight('');
+      const question = focus?.label ? `${focus.label} 자세히` : '명반 개요 자세히';
+
+      try {
+        const res = await fetch('/api/interpret', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chart, messages: [{ role: 'user', content: question }] }),
+        });
+
+        if (!res.ok || !res.body) throw new Error('interpret failed');
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+        let output = '';
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() ?? '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const payload = line.slice(6).trim();
+            if (payload === '[DONE]') continue;
+            const parsed = JSON.parse(payload) as { delta?: { text?: string } };
+            output += parsed.delta?.text ?? '';
+          }
+
+          if (!cancelled) setDeepInsight(output);
+        }
+      } catch {
+        if (!cancelled) setDeepInsight('샘플 코퍼스 해석을 불러오지 못했습니다. 기본 명반 요약을 참고해 주세요.');
+      } finally {
+        if (!cancelled) setIsLoadingDeepInsight(false);
+      }
+    }
+
+    loadDeepInsight();
+    return () => {
+      cancelled = true;
+    };
+  }, [chart, focus?.label]);
 
   return (
     <aside style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -114,6 +168,13 @@ export default function InsightPanel({ chart, view, liunianYear, liuyueMonth, fo
         ) : (
           <p style={{ color: 'var(--tx-3)', fontSize: 12 }}>강하게 감지된 격국은 없습니다.</p>
         )}
+      </section>
+
+      <section style={sectionStyle}>
+        <div className="label-section" style={{ marginBottom: 8 }}>v3 샘플 해석</div>
+        <div style={{ color: 'var(--tx-2)', fontSize: 12, lineHeight: 1.8, whiteSpace: 'pre-wrap' }}>
+          {deepInsight || (isLoadingDeepInsight ? '원본 v3 샘플 코퍼스에서 해석을 불러오는 중입니다.' : '해석을 준비 중입니다.')}
+        </div>
       </section>
 
       <section style={sectionStyle}>

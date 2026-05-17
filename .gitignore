@@ -6,3 +6,11 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
+.omx/
+ziwei-data/
+samples-out/
+*.jsonl
+*.jsonl.gz
+*.zip.001
+*.zip.002
+*.zip.003
