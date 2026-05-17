@@ -1,161 +1,133 @@
-# 紫微斗数 · 开源排盘引擎
+# JamiDusu 한국어 자미두수 대시보드
 
-基于**倪海夏《天纪》**教学体系的紫微斗数排盘系统，包含完整排盘算法、四化系统、格局知识库、古籍原文数据，以及 **51.8 万条命盘样本数据**。
+한국 사용자를 기준으로 만든 자미두수 명반 생성 및 해석 대시보드입니다. 원본 오픈소스의 배반 알고리즘과 격국 탐지 로직을 기반으로, 입력 화면과 결과 화면, 주요 해석 문구를 한국어로 정리했습니다.
 
-线上体验：[wdyziweidoushu666.com](https://wdyziweidoushu666.com)
+서비스 URL: <https://jamidusu.xsw.kr>
 
----
+## 주요 기능
 
-## 51.8 万命盘样本数据
+- 양력/음력 생년월일 입력
+- 음력 윤달 입력 지원
+- 한국 시군구 기반 출생지 선택
+- 한국 표준시 기준 진태양시 보정
+- 자미두수 12궁 명반 생성
+- 명궁, 신궁, 대한, 유년 흐름 표시
+- 격국 탐지 및 한국어 결과 표시
+- `巨日同宫`, `财帛`, `迁移`, `太阴化忌` 등 주요 한자 용어 한국어 변환
+- 합반 API와 기본 해석 API 제공
+- Caddy + PM2 운영 배포 구성
 
-> **下载位置：本仓库右侧 [Releases](https://github.com/Renhuai123/ziwei-doushu/releases/tag/v3.0-samples) 页面**
+## 한국어 표시 기준
 
-我们开源了一套完整的紫微斗数命盘样本数据集，覆盖 **51.8 万种排盘组合**（年 60 × 月 12 × 日 30 × 时 12 × 性别 2），每条样本包含完整的命盘结构和基于倪海夏体系的解读文本。
+명반 내부 계산은 `iztro`가 쓰는 중국어 별명과 궁명을 유지합니다. 화면 표시 직전에는 한국어 라벨로 변환합니다.
 
-### 数据规格
+예시:
 
-| 项目 | 说明 |
-|------|------|
-| 样本数量 | **518,400 条** |
-| 总大小 | 5.5 GB（分 3 卷压缩） |
-| 体系 | 倪海夏《天纪》正统（纯飞星派已下线） |
-| 内容 | 命盘 JSON + 13 主题解读文本（命格总览、财运、事业、感情、健康等） |
-| 验证 | 男女命差异化 100%、健康含子午流注 100%、女命含妇科保养 100% |
-| 口径 | 与线上 [wdyziweidoushu666.com](https://wdyziweidoushu666.com) 完全一致 |
+| 원문 | 표시 |
+| --- | --- |
+| 巨日同宫 | 거일동궁 |
+| 财帛宫 | 재백궁 |
+| 迁移宫 | 천이궁 |
+| 太阴化忌 | 태음 화기 |
+| 巨门太阳同寅宫 | 거문과 태양이 인궁에 함께 있음 |
 
-### 下载方式
-
-前往 [Releases](https://github.com/Renhuai123/ziwei-doushu/releases/tag/v3.0-samples) 下载以下文件：
-
-```
-ziwei-samples-v3-part1.zip.001  (1.9 GB)
-ziwei-samples-v3-part2.zip.002  (1.9 GB)
-ziwei-samples-v3-part3.zip.003  (1.8 GB)
-SHA256SUMS.txt                  (校验文件)
-```
-
-下载后合并解压：
+## 빠른 시작
 
 ```bash
-# macOS / Linux
-cat ziwei-samples-v3-part*.zip.* > combined.zip
-unzip combined.zip
-
-# Windows (PowerShell)
-Get-Content ziwei-samples-v3-part*.zip.* -Encoding Byte -ReadCount 0 | Set-Content combined.zip -Encoding Byte
-Expand-Archive combined.zip
-```
-
-### 用途
-
-- 微调小模型的训练语料（51.8 万 input-output 配对）
-- AI 对话的 RAG 检索源
-- 修改 `patterns.ts` 后做 A/B 基线对比
-- 紫微斗数研究与数据分析
-
----
-
-## 开源内容
-
-### 排盘算法（`lib/ziwei/`）
-
-| 文件 | 说明 |
-|------|------|
-| `algorithm.ts` | 完整排盘流程：安命宫、定五行局、安十四主星、安辅星、排大限流年 |
-| `constants.ts` | 天干地支、十四主星、辅星常量 |
-| `sihua.ts` | 四化飞星系统（禄权科忌），含各天干四化对照表 |
-| `patterns.ts` | **1100+ 行格局知识库**：紫府同宫、日月并明、七杀朝斗等经典格局判定规则 |
-| `heming-knowledge.ts` | 合盘方法论：倪师体系下双盘比对逻辑 |
-| `types.ts` | TypeScript 类型定义 |
-| `cities.ts` | 中国城市经纬度，用于真太阳时校正 |
-| `famous.ts` | 历史名人命盘示例数据 |
-
-### 古籍原文（`lib/classics/`）
-
-- **骨髓赋**（`gusuifu.ts`）— 紫微斗数核心歌诀
-- **紫微斗数全集**（`quanji.ts`）— 清代古本
-- **紫微斗数全书**（`quanshu.ts`）— 陈希夷传本
-
-### 前端界面（`app/` + `components/`）
-
-完整的 Next.js 14 前端，包含：
-
-- 排盘工作台（命盘方格、宫位详情、星曜面板）
-- 合盘分析页
-- 古籍阅读器（全文搜索）
-- 命理百科（14 主星 + 12 宫位知识页）
-- 亮色/暗色主题切换
-- 移动端适配
-
-### SEO 知识图谱（`lib/seo/`）
-
-14 主星 × 12 宫位的结构化知识数据，可用于内容生成或知识库构建。
-
----
-
-## 未包含的部分
-
-以下属于平台运营层，不在开源范围内：
-
-- **AI 解读 prompt**：基于倪海夏体系调教的命盘解读提示词
-- **后端 API**：`/api/interpret`、`/api/heming`、`/api/generate` 等路由实现
-- **用户系统**：登录、短信验证、会员、支付
-- **服务端安全**：签名校验、防刷、水印
-- **部署配置**：Vercel/Nginx/Docker/数据库
-
-如果你需要 AI 解读能力，可以参考 `lib/ziwei/patterns.ts` 和 `heming-knowledge.ts` 中的知识库，结合任意 LLM 自行构建 prompt。
-
----
-
-## 快速开始
-
-```bash
-# 克隆
-git clone https://github.com/Renhuai123/ziwei-doushu.git
-cd ziwei-doushu
-
-# 安装依赖
 npm install
-
-# 配置环境变量
-cp .env.example .env.local
-# 编辑 .env.local，填入你的 AI API Key
-
-# 启动开发服务器
 npm run dev
 ```
 
-> 注意：开源版不含后端 API 路由，AI 解读功能需要你自行实现 `/api/interpret` 等接口。排盘算法和前端界面可独立运行。
+개발 서버는 기본적으로 <http://localhost:3000>에서 실행됩니다.
 
----
+## 빌드
 
-## 技术栈
+```bash
+npm run build
+npm run start
+```
 
-- **框架**：Next.js 14（App Router）
-- **语言**：TypeScript
-- **样式**：Tailwind CSS + CSS Variables 设计系统
-- **排盘**：基于 [iztro](https://github.com/SylarLong/iztro) + lunar-javascript
-- **动画**：Framer Motion
+## API
 
----
+### `POST /api/generate`
 
-## 项目理念
+명반을 생성합니다.
 
-紫微斗数是中国传统命理学的瑰宝，倪海夏老师在《天纪》中系统梳理了正宗的紫微斗数体系。我们希望通过技术手段让更多人接触和学习这门学问。
+```json
+{
+  "year": 1990,
+  "month": 1,
+  "day": 1,
+  "hour": 6,
+  "gender": "male",
+  "calendarType": "lunar",
+  "isLeapMonth": false,
+  "name": "테스트"
+}
+```
 
-开源排盘算法和知识库，是因为我们相信：**算法是公开的传统智慧，不应该被锁在围墙里**。真正的价值在于解读的深度、用户体验的打磨、以及持续运营的积累。
+`calendarType`은 `solar` 또는 `lunar`입니다. 음력 윤달이면 `isLeapMonth`를 `true`로 보냅니다.
 
-想自己搭？代码都在这里，拿去用。嫌麻烦？来 [wdyziweidoushu666.com](https://wdyziweidoushu666.com) 直接用。
+### `POST /api/interpret`
 
----
+생성된 명반 JSON을 받아 한국어 SSE 해석을 반환합니다.
 
-## 协议
+### `POST /api/heming`
+
+두 명반을 비교해 한국어 합반 요약을 반환합니다.
+
+## 배포
+
+현재 운영 배포는 다음 구성을 사용합니다.
+
+- Next.js production server: `127.0.0.1:3220`
+- PM2 process: `jamidusu`
+- Caddy domain: `jamidusu.xsw.kr`
+
+운영 반영 절차:
+
+```bash
+npm run build
+pm2 restart jamidusu
+pm2 save
+sudo caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+Caddy 설정은 `jamidusu.xsw.kr`을 `127.0.0.1:3220`으로 reverse proxy합니다.
+
+## 기술 스택
+
+- Next.js App Router
+- TypeScript
+- React
+- Tailwind CSS
+- Framer Motion
+- iztro
+- lunar-javascript
+- PM2
+- Caddy
+
+## 프로젝트 구조
+
+| 경로 | 설명 |
+| --- | --- |
+| `app/chart` | 한국어 명반 대시보드 화면 |
+| `app/api/generate` | 명반 생성 API |
+| `app/api/interpret` | 한국어 해석 SSE API |
+| `app/api/heming` | 합반 요약 SSE API |
+| `components/BirthForm.tsx` | 양력/음력 입력 폼 |
+| `components/PatternsCard.tsx` | 격국 결과 카드 |
+| `components/insight/InsightPanel.tsx` | 우측 한국어 해석 패널 |
+| `lib/ziwei/algorithm.ts` | iztro 기반 명반 생성 |
+| `lib/ziwei/labels.ts` | 한자 용어 한국어 변환 |
+| `lib/ziwei/share.ts` | URL 공유 파라미터와 진태양시 계산 |
+| `lib/ziwei/cities.ts` | 한국 지역/경도 데이터 |
+
+## 참고
+
+이 프로젝트는 전통 명리 콘텐츠를 다루지만, 결과는 자기 이해와 참고용입니다. 의료, 투자, 법률, 심리 상담이나 중대한 의사결정의 근거로 사용하지 마세요.
+
+## 라이선스
 
 MIT License
-
----
-
-## 联系
-
-- 线上平台：[wdyziweidoushu666.com](https://wdyziweidoushu666.com)
-- Issues：欢迎提 Bug 和建议

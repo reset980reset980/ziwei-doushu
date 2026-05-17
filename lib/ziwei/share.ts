@@ -1,10 +1,10 @@
 import type { BirthFormState } from '@/components/BirthForm';
 import type { BirthInfo } from './types';
 
-/** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
+/** KST 표준 경도(동경 135도) 기준 진태양시 시지를 계산한다. */
 export function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
   const clockMins = clockHour * 60 + clockMinute;
-  const offset = (longitude - 120) * 4;
+  const offset = (longitude - 135) * 4;
   const solar = ((clockMins + offset) % 1440 + 1440) % 1440;
   if (solar >= 1380 || solar < 60) return 0;
   return Math.floor((solar - 60) / 120) + 1;
@@ -40,6 +40,8 @@ export function formToBirthInfo(form: BirthFormState): BirthInfo {
     year: y, month: m, day: d,
     hour,
     gender: form.gender,
+    calendarType: form.calendarType ?? 'solar',
+    isLeapMonth: form.calendarType === 'lunar' ? form.isLeapMonth : undefined,
     name: form.name || undefined,
     province: form.province || undefined,
     city: form.city || undefined,
@@ -54,6 +56,8 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   p.set('y', form.year);
   p.set('m', form.month);
   p.set('d', form.day);
+  if (form.calendarType === 'lunar') p.set('cal', 'lunar');
+  if (form.isLeapMonth) p.set('leap', '1');
   if (form.unknownTime) {
     p.set('u', '1');
   } else {
@@ -62,7 +66,7 @@ export function formToSearchParams(form: BirthFormState): URLSearchParams {
   }
   if (form.province) p.set('p', form.province);
   if (form.city) p.set('c', form.city);
-  if (form.longitude && form.longitude !== 120) p.set('lo', String(form.longitude));
+  if (form.longitude && form.longitude !== 126.98) p.set('lo', String(form.longitude));
   p.set('g', form.gender === 'male' ? 'm' : 'f');
   return p;
 }
@@ -78,12 +82,14 @@ export function searchParamsToForm(params: URLSearchParams): Partial<BirthFormSt
     year,
     month,
     day,
+    calendarType: params.get('cal') === 'lunar' ? 'lunar' : 'solar',
+    isLeapMonth: params.get('leap') === '1',
     unknownTime: params.get('u') === '1',
     clockHour: params.get('h') || '8',
     clockMinute: params.get('mi') || '0',
     province: params.get('p') || '',
     city: params.get('c') || '',
-    longitude: parseFloat(params.get('lo') || '120'),
+    longitude: parseFloat(params.get('lo') || '126.98'),
     gender: params.get('g') === 'f' ? 'female' : 'male',
   };
 }

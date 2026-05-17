@@ -11,6 +11,8 @@ export interface BirthFormState {
   year: string;
   month: string;
   day: string;
+  calendarType: 'solar' | 'lunar';
+  isLeapMonth: boolean;
   clockHour: string;
   clockMinute: string;
   unknownTime: boolean;
@@ -31,10 +33,10 @@ interface BirthFormProps {
 
 const SHICHEN_NAMES = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
 
-/** 根据北京时间 + 经度计算真太阳时时辰支 (0-11) */
+/** KST 표준 경도(동경 135도)와 출생지 경도로 진태양시 시지를 계산한다. */
 function calcTrueSolarBranch(clockHour: number, clockMinute: number, longitude: number): number {
   const clockMins = clockHour * 60 + clockMinute;
-  const offset = (longitude - 120) * 4;
+  const offset = (longitude - 135) * 4;
   const solar = ((clockMins + offset) % 1440 + 1440) % 1440;
   if (solar >= 1380 || solar < 60) return 0;
   return Math.floor((solar - 60) / 120) + 1;
@@ -56,12 +58,14 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     year: initialData?.year ?? '',
     month: initialData?.month ?? '',
     day: initialData?.day ?? '',
+    calendarType: initialData?.calendarType ?? 'solar',
+    isLeapMonth: initialData?.isLeapMonth ?? false,
     clockHour: initialData?.clockHour ?? '8',
     clockMinute: initialData?.clockMinute ?? '0',
     unknownTime: initialData?.unknownTime ?? false,
     province: initialData?.province ?? '',
     city: initialData?.city ?? '',
-    longitude: initialData?.longitude ?? 120,
+    longitude: initialData?.longitude ?? 126.98,
     gender: initialData?.gender ?? 'male',
   });
 
@@ -88,7 +92,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     );
   }, [form.clockHour, form.clockMinute, form.longitude, form.unknownTime]);
 
-  const offsetMin = Math.round((form.longitude - 120) * 4);
+  const offsetMin = Math.round((form.longitude - 135) * 4);
   const shichenInfo = SHICHEN[branch];
 
   // ─── 校验逻辑 ───────────────────────────────────────────
@@ -97,12 +101,13 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const d = parseInt(form.day) || 0;
 
   const errors = {
-    year: !form.year ? '请选择出生年份'
-      : y < 1900 || y > 2026 ? '年份范围：1900–2026'
+    year: !form.year ? '출생 연도를 선택하세요'
+      : y < 1900 || y > 2026 ? '연도 범위: 1900-2026'
       : '',
-    month: !form.month ? '请选择月份' : '',
-    day: !form.day ? '请选择日期'
-      : form.year && form.month && !isValidDate(y, m, d) ? `${m}月没有${d}日`
+    month: !form.month ? '월을 선택하세요' : '',
+    day: !form.day ? '일을 선택하세요'
+      : form.calendarType === 'solar' && form.year && form.month && !isValidDate(y, m, d) ? `${m}월에는 ${d}일이 없습니다`
+      : form.calendarType === 'lunar' && (d < 1 || d > 30) ? '음력 일자는 1-30일 범위로 입력하세요'
       : '',
   };
   const hasError = Object.values(errors).some(Boolean);
@@ -120,23 +125,23 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
   const showSummary = steps[0] && steps[2] && !hasError;
   const summaryText = showSummary
     ? [
-        `${y}年${m}月${d}日`,
+        `${form.calendarType === 'lunar' ? '음력' : '양력'} ${y}년 ${form.isLeapMonth ? '윤' : ''}${m}월 ${d}일`,
         form.city || (form.province ? form.province : ''),
-        form.unknownTime ? '时辰不详' : `${SHICHEN_NAMES[branch]}时`,
-        form.gender === 'male' ? '男' : '女',
+        form.unknownTime ? '출생시 모름' : `${SHICHEN_NAMES[branch]}시`,
+        form.gender === 'male' ? '남성' : '여성',
       ].filter(Boolean).join(' · ')
     : '';
 
   const handleProvince = (prov: string) => {
     const provData = PROVINCES.find(p => p.name === prov);
     const firstCity = provData?.cities[0];
-    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? 120 });
+    setForm({ ...form, province: prov, city: firstCity?.name || '', longitude: firstCity?.longitude ?? 126.98 });
   };
 
   const handleCity = (cityName: string) => {
     const prov = PROVINCES.find(p => p.name === form.province);
     const cityData = prov?.cities.find(c => c.name === cityName);
-    setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? 120 });
+    setForm({ ...form, city: cityName, longitude: cityData?.longitude ?? 126.98 });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -145,7 +150,19 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     setTouched({ year: true, month: true, day: true });
     if (hasError) return;
     onFormSave?.({ ...form });
-    onSubmit({ year: y, month: m, day: d, hour: branch, gender: form.gender, name: form.name || undefined, province: form.province || undefined, city: form.city || undefined, longitude: form.province ? form.longitude : undefined });
+    onSubmit({
+      year: y,
+      month: m,
+      day: d,
+      hour: branch,
+      gender: form.gender,
+      calendarType: form.calendarType,
+      isLeapMonth: form.calendarType === 'lunar' ? form.isLeapMonth : undefined,
+      name: form.name || undefined,
+      province: form.province || undefined,
+      city: form.city || undefined,
+      longitude: form.province ? form.longitude : undefined,
+    });
   };
 
   // ─── 样式变量 ────────────────────────────────────────────
@@ -210,7 +227,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
     >
       {/* 标题 */}
       <h3 style={{ color: goldText, fontSize: '12px', letterSpacing: '0.4em', textAlign: 'center', marginBottom: '20px', fontWeight: 500 }}>
-        ── 输入生辰八字 ──
+        ── 출생 정보 입력 ──
       </h3>
 
       {/* ── 进度条 ── */}
@@ -227,10 +244,10 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
       {/* ── 姓名 ── */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>姓名（可选）</label>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>이름 (선택)</label>
         <input
           type="text"
-          placeholder="请输入姓名"
+          placeholder="이름을 입력하세요"
           value={form.name}
           onChange={e => setForm({ ...form, name: e.target.value })}
           style={inputStyle}
@@ -239,9 +256,52 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
         />
       </div>
 
+      <div style={{ marginBottom: '16px' }}>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>달력 기준</label>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {(['solar', 'lunar'] as const).map(type => {
+            const active = form.calendarType === type;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setForm({ ...form, calendarType: type, isLeapMonth: type === 'lunar' ? form.isLeapMonth : false })}
+                style={{
+                  flex: 1,
+                  padding: '10px',
+                  borderRadius: '14px',
+                  fontSize: '12px',
+                  border: `1px solid ${active ? focusBorder : inputBorder}`,
+                  background: active ? 'rgba(212,168,67,0.10)' : inputBg,
+                  color: active ? goldText : inputClr,
+                  cursor: 'pointer',
+                }}
+              >
+                {type === 'solar' ? '양력' : '음력'}
+              </button>
+            );
+          })}
+        </div>
+        {form.calendarType === 'lunar' && (
+          <label style={{ display: 'flex', alignItems: 'center', gap: '7px', marginTop: '8px', cursor: 'pointer' }}>
+            <input
+              type="checkbox"
+              checked={form.isLeapMonth}
+              onChange={e => setForm({ ...form, isLeapMonth: e.target.checked })}
+              style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }}
+            />
+            <span style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)' }}>
+              윤달입니다
+            </span>
+          </label>
+        )}
+      </div>
+
       {/* ── 出生日期 ── */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生日期（公历）</label>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>
+          출생일 ({form.calendarType === 'lunar' ? '음력' : '양력'})
+        </label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
           <div>
             <select
@@ -250,7 +310,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               style={showErr('year') && errors.year ? errorInputStyle : inputStyle}
               required
             >
-              <option value="">年份</option>
+              <option value="">연도</option>
               {Array.from({ length: 127 }, (_, i) => 2026 - i).map(yr => (
                 <option key={yr} value={String(yr)}>{yr}</option>
               ))}
@@ -264,9 +324,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               style={showErr('month') && errors.month ? errorInputStyle : inputStyle}
               required
             >
-              <option value="">月份</option>
+              <option value="">월</option>
               {Array.from({ length: 12 }, (_, i) => i + 1).map(mo => (
-                <option key={mo} value={String(mo)}>{mo} 月</option>
+                <option key={mo} value={String(mo)}>{mo}월</option>
               ))}
             </select>
             <FieldError msg={showErr('month') ? errors.month : ''} />
@@ -278,9 +338,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               style={showErr('day') && errors.day ? errorInputStyle : inputStyle}
               required
             >
-              <option value="">日期</option>
+              <option value="">일</option>
               {Array.from({ length: 31 }, (_, i) => i + 1).map(dy => (
-                <option key={dy} value={String(dy)}>{dy} 日</option>
+                <option key={dy} value={String(dy)}>{dy}일</option>
               ))}
             </select>
             <FieldError msg={showErr('day') ? errors.day : ''} />
@@ -290,7 +350,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
       {/* ── 出生地点 ── */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生地点（用于真太阳时校正）</label>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>출생지 (진태양시 보정)</label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <select
             value={form.province}
@@ -299,7 +359,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             onFocus={e => { e.target.style.borderColor = focusBorder; }}
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
-            <option value="">省份 / 直辖市</option>
+            <option value="">지역 선택</option>
             {PROVINCES.map(p => (
               <option key={p.name} value={p.name}>{p.name}</option>
             ))}
@@ -312,7 +372,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             onFocus={e => { e.target.style.borderColor = focusBorder; }}
             onBlur={e => { e.target.style.borderColor = inputBorder; }}
           >
-            <option value="">{form.province ? '城市' : '先选省份'}</option>
+            <option value="">{form.province ? '도시' : '지역 먼저 선택'}</option>
             {cityList.map(c => (
               <option key={c.name} value={c.name}>{c.name}</option>
             ))}
@@ -327,7 +387,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: isDark ? 'rgba(180,210,235,0.85)' : 'rgba(100,70,10,0.5)', marginTop: '5px' }}
             >
-              {form.city || '（请选择城市）'} · 经度 {form.longitude.toFixed(1)}°E · 时差 {offsetMin > 0 ? '+' : ''}{offsetMin} 分钟
+              {form.city || '(도시 선택)'} · 경도 {form.longitude.toFixed(1)}°E · 보정 {offsetMin > 0 ? '+' : ''}{offsetMin}분
             </motion.p>
           ) : (
             <motion.p
@@ -337,7 +397,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               exit={{ opacity: 0 }}
               style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)', marginTop: '5px' }}
             >
-              * 倪海夏批命用真太阳时，建议填写出生地以自动校正时辰
+              * 출생지를 입력하면 진태양시 기준으로 시지를 보정합니다.
             </motion.p>
           )}
         </AnimatePresence>
@@ -345,7 +405,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
 
       {/* ── 出生时间 ── */}
       <div style={{ marginBottom: '16px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>出生时间（北京时间）</label>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>출생 시간</label>
         <div style={{ borderRadius: '14px', padding: '12px', background: panelBg, border: `1px solid ${panelBorder}`, opacity: form.unknownTime ? 0.45 : 1, pointerEvents: form.unknownTime ? 'none' : 'auto', transition: 'opacity 0.2s' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
             <select
@@ -354,7 +414,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               style={inputStyle}
             >
               {Array.from({ length: 24 }, (_, i) => i).map(h => (
-                <option key={h} value={String(h)}>{h.toString().padStart(2, '0')} 时</option>
+                <option key={h} value={String(h)}>{h.toString().padStart(2, '0')}시</option>
               ))}
             </select>
             <select
@@ -363,15 +423,15 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               style={inputStyle}
             >
               {Array.from({ length: 60 }, (_, i) => i).map(min => (
-                <option key={min} value={String(min)}>{min.toString().padStart(2, '0')} 分</option>
+                <option key={min} value={String(min)}>{min.toString().padStart(2, '0')}분</option>
               ))}
             </select>
           </div>
-          {/* 真太阳时结果 */}
+          {/* 진태양시 결과 */}
           <div style={{ textAlign: 'center', padding: '4px 0' }}>
-            <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)' }}>真太阳时 → </span>
+            <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)' }}>진태양시 → </span>
             <span style={{ fontSize: '15px', color: goldText, fontWeight: 600, letterSpacing: '0.08em' }}>
-              {SHICHEN_NAMES[branch]}时
+              {SHICHEN_NAMES[branch]}시
             </span>
             {shichenInfo && (
               <span style={{ fontSize: '10px', color: isDark ? 'rgba(170,195,220,0.75)' : 'rgba(140,100,20,0.5)', marginLeft: '4px' }}>
@@ -388,14 +448,14 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
             style={{ width: '14px', height: '14px', borderRadius: '4px', cursor: 'pointer' }}
           />
           <span style={{ fontSize: '10px', color: isDark ? 'rgba(165,185,210,0.7)' : 'rgba(140,100,20,0.45)' }}>
-            不知道出生时间，以子时（23:00–01:00）起盘
+            출생 시간을 모릅니다. 자시(23:00-01:00)로 명반을 만듭니다.
           </span>
         </label>
       </div>
 
       {/* ── 性别 ── */}
       <div style={{ marginBottom: '20px' }}>
-        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>性别</label>
+        <label style={{ display: 'block', fontSize: '11px', color: labelClr, marginBottom: '6px', letterSpacing: '0.05em' }}>성별</label>
         <div style={{ display: 'flex', gap: '10px' }}>
           {(['male', 'female'] as const).map(g => {
             const active = form.gender === g;
@@ -420,7 +480,7 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
                   cursor: 'pointer',
                 }}
               >
-                {isMale ? '♂ 男' : '♀ 女'}
+                {isMale ? '♂ 남성' : '♀ 여성'}
               </motion.button>
             );
           })}
@@ -486,9 +546,9 @@ export default function BirthForm({ onSubmit, loading, initialData, onFormSave, 
               transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
               style={{ display: 'inline-block', width: '12px', height: '12px', border: '2px solid currentColor', borderTopColor: 'transparent', borderRadius: '50%' }}
             />
-            紫微起盘中…
+            명반 생성 중...
           </span>
-        ) : '立即起盘 · 解命运密码'}
+        ) : '명반 생성 · 운의 구조 보기'}
       </motion.button>}
     </motion.form>
   );

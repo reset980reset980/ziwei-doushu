@@ -4,6 +4,7 @@
  */
 
 import { astro } from 'iztro';
+import { lunar2solar } from 'iztro/lib/calendar/convertor';
 import { Solar } from 'lunar-javascript';
 import type { BirthInfo, LunarInfo, Star, Palace, DaXian, DaXianSiHua, ZiweiChart } from './types';
 import { BRANCHES, STEMS } from './constants';
@@ -66,10 +67,14 @@ function parseWuxingJu(name: string): number {
 export function generateChart(birthInfo: BirthInfo): ZiweiChart {
   const { year, month, day, hour, gender } = birthInfo;
 
-  // 调用 iztro 排盘
-  const solarDate = `${year}-${month}-${day}`;
+  const dateStr = `${year}-${month}-${day}`;
   const iztroGender = gender === 'male' ? '男' : '女';
-  const astrolabe = astro.bySolar(solarDate, hour, iztroGender, true, 'zh-CN');
+  const isLunar = birthInfo.calendarType === 'lunar';
+  const solarDate = isLunar ? lunar2solar(dateStr, birthInfo.isLeapMonth).toString() : dateStr;
+  const astrolabe = isLunar
+    ? astro.byLunar(dateStr, hour, iztroGender, !!birthInfo.isLeapMonth, true, 'zh-CN')
+    : astro.bySolar(solarDate, hour, iztroGender, true, 'zh-CN');
+  const [solarYear, solarMonth, solarDay] = solarDate.split('-').map(Number);
 
   // ── 组装十二宫 ──
   const palaces: Palace[] = astrolabe.palaces.map(p => {
@@ -111,7 +116,7 @@ export function generateChart(birthInfo: BirthInfo): ZiweiChart {
 
   // ── 当前年龄 & 大限 ──
   const currentYear = new Date().getFullYear();
-  const currentAge  = currentYear - year;
+  const currentAge  = currentYear - solarYear;
 
   palaces.forEach(p => {
     if (p.daXianAge && currentAge >= p.daXianAge[0] && currentAge <= p.daXianAge[1]) {
@@ -163,10 +168,16 @@ export function generateChart(birthInfo: BirthInfo): ZiweiChart {
   );
 
   // ── 农历信息 ──
-  const lunarInfo = getLunarInfo(year, month, day);
+  const lunarInfo = getLunarInfo(solarYear, solarMonth, solarDay);
 
   return {
-    birthInfo,
+    birthInfo: {
+      ...birthInfo,
+      calendarType: birthInfo.calendarType ?? 'solar',
+      solarYear,
+      solarMonth,
+      solarDay,
+    },
     lunarInfo,
     mingGongBranch: mingGongBranch >= 0 ? mingGongBranch : 0,
     shenGongBranch: shenGongBranch >= 0 ? shenGongBranch : 0,

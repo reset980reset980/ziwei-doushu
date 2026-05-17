@@ -2,6 +2,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Star } from '@/lib/ziwei/types';
 import { STAR_DESCRIPTIONS } from '@/lib/ziwei/constants';
+import { koreanizeZiweiText, palaceLabel, siHuaLabel, starLabel } from '@/lib/ziwei/labels';
 
 interface StarDetailPanelProps {
   star: Star | null;
@@ -194,7 +195,7 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
           {/* 标题栏 */}
           <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--t-border)' }}>
             <div className="flex items-center gap-2">
-              <span className="text-xl font-bold" style={{ color: 'var(--t-gold)' }}>{star.name}</span>
+              <span className="text-xl font-bold" style={{ color: 'var(--t-gold)' }}>{starLabel(star.name)}</span>
               {typeConfig && (
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${typeConfig.color}`}>
                   {typeConfig.label}
@@ -202,7 +203,7 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
               )}
               {star.siHua && (
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full border font-medium ${siHuaColors[star.siHua] || ''}`}>
-                  化{star.siHua}
+                  화{siHuaLabel(star.siHua)}
                 </span>
               )}
             </div>
@@ -214,15 +215,15 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
             {desc && (
               <div className="flex flex-wrap gap-1.5">
                 {[
-                  `五行 · ${desc.element}`,
-                  `性质 · ${desc.nature}`,
-                  ...(palaceName ? [`位置 · ${palaceName}`] : []),
-                  ...(star.brightness ? [star.brightness === 'bright' ? '庙旺' : star.brightness === 'dim' ? '落陷' : '平和'] : []),
+                  `오행 · ${desc.element}`,
+                  `성질 · ${koreanizeZiweiText(desc.nature)}`,
+                  ...(palaceName ? [`위치 · ${palaceLabel(palaceName)}`] : []),
+                  ...(star.brightness ? [star.brightness === 'bright' ? '묘왕' : star.brightness === 'dim' ? '낙함' : '평화'] : []),
                 ].map(tag => (
                   <div key={tag} className="text-[10px] px-2 py-1 rounded-full"
                     style={{
                       border: '1px solid var(--t-border)',
-                      color: tag.includes('庙旺') ? '#eab308' : tag.includes('落陷') ? '#ef4444' : 'var(--t-text2)',
+                      color: tag.includes('묘왕') ? '#eab308' : tag.includes('낙함') ? '#ef4444' : 'var(--t-text2)',
                     }}>
                     {tag}
                   </div>
@@ -235,7 +236,7 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
               <div>
                 <div className="text-[10px] tracking-widest mb-1.5" style={{ color: 'var(--t-faint)' }}>星曜特质</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {desc.keywords.split('·').map(k => (
+                  {koreanizeZiweiText(desc.keywords).split('·').map(k => (
                     <span key={k} className="text-[11px] px-2 py-0.5 rounded-full"
                       style={{ color: 'var(--t-gold)', border: '1px solid rgba(212,168,67,0.2)', background: 'rgba(212,168,67,0.06)' }}>
                       {k.trim()}
@@ -249,9 +250,9 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
             {detail && (
               <div className="rounded-xl p-3" style={{ background: 'rgba(212,168,67,0.04)', border: '1px solid rgba(212,168,67,0.12)' }}>
                 <div className="text-[10px] tracking-widest mb-1.5 flex items-center gap-1" style={{ color: 'var(--t-gold)', opacity: 0.7 }}>
-                  古书原文
+                  고전 원문 요약
                 </div>
-                <p className="text-[11px] leading-relaxed italic" style={{ color: 'var(--t-gold)', opacity: 0.8 }}>{detail.classical}</p>
+                <p className="text-[11px] leading-relaxed italic" style={{ color: 'var(--t-gold)', opacity: 0.8 }}>{koreanizeZiweiText(detail.classical)}</p>
               </div>
             )}
 
@@ -261,37 +262,37 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
                 <div>
                   <div className="text-[10px] tracking-widest mb-1.5 flex items-center gap-1.5" style={{ color: 'var(--t-faint)' }}>
                     <span className="w-3 h-px inline-block" style={{ background: 'var(--t-border-acc)' }} />
-                    倪海夏老师解读
+                    니하이샤 체계 해석
                     <span className="w-3 h-px inline-block" style={{ background: 'var(--t-border-acc)' }} />
                   </div>
-                  <p className="text-xs leading-relaxed" style={{ color: 'var(--t-text2)' }}>{detail.niHaixia}</p>
+                  <p className="text-xs leading-relaxed" style={{ color: 'var(--t-text2)' }}>{koreanizeZiweiText(detail.niHaixia)}</p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-2">
                   {[
-                    { label: '事业方向', value: detail.career, icon: '◈' },
-                    { label: '感情特质', value: detail.relationship, icon: '♡' },
-                    { label: '财运分析', value: detail.wealth, icon: '◆' },
-                    { label: '健康提示', value: detail.health, icon: '☯' },
+                    { label: '직업 방향', value: detail.career, icon: '◈' },
+                    { label: '관계 성향', value: detail.relationship, icon: '♡' },
+                    { label: '재물 분석', value: detail.wealth, icon: '◆' },
+                    { label: '건강 참고', value: detail.health, icon: '☯' },
                   ].map(item => (
                     <div key={item.label} className="card-inner rounded-lg p-3">
                       <div className="text-[10px] mb-1 flex items-center gap-1" style={{ color: 'var(--t-faint)' }}>
                         <span>{item.icon}</span>
                         <span>{item.label}</span>
                       </div>
-                      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>{item.value}</p>
+                      <p className="text-[11px] leading-relaxed" style={{ color: 'var(--t-text2)' }}>{koreanizeZiweiText(item.value)}</p>
                     </div>
                   ))}
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div className="text-[10px] p-2.5 rounded-lg" style={{ border: '1px solid rgba(74,222,128,0.15)', background: 'rgba(74,222,128,0.05)' }}>
-                    <div className="text-emerald-500 mb-0.5 font-medium">最佳宫位</div>
-                    <div className="text-emerald-500/70">{detail.bestPalace}</div>
+                    <div className="text-emerald-500 mb-0.5 font-medium">좋은 궁위</div>
+                    <div className="text-emerald-500/70">{koreanizeZiweiText(detail.bestPalace)}</div>
                   </div>
                   <div className="text-[10px] p-2.5 rounded-lg" style={{ border: '1px solid rgba(248,113,113,0.15)', background: 'rgba(248,113,113,0.05)' }}>
-                    <div className="text-red-500 mb-0.5 font-medium">注意宫位</div>
-                    <div className="text-red-500/70">{detail.worstPalace}</div>
+                    <div className="text-red-500 mb-0.5 font-medium">주의 궁위</div>
+                    <div className="text-red-500/70">{koreanizeZiweiText(detail.worstPalace)}</div>
                   </div>
                 </div>
               </>
@@ -302,24 +303,24 @@ export default function StarDetailPanel({ star, palaceName, onClose }: StarDetai
               <div className="text-xs leading-relaxed" style={{ color: 'var(--t-text2)' }}>
                 {star.type === 'lucky' && (
                   <>
-                    {star.name === '文昌' && '文昌入宫，主学业考试顺利，文书印鉴有利，宜从事文字相关工作。古诀：「文昌科甲，主文章显达，逢考必第。」'}
-                    {star.name === '文曲' && '文曲入宫，主才艺出众，口才佳，善于表达，艺术天赋强。古诀：「文曲为才艺之星，能文能武，口才胜人。」'}
-                    {star.name === '左辅' && '左辅入宫，主贵人相助，有人提携，该宫位事项受到善意支持。古诀：「左辅为助力之星，坐命则贵人多，逢凶化吉。」'}
-                    {star.name === '右弼' && '右弼入宫，主贵人相助，多出女性贵人，该宫位事项有人协助。古诀：「右弼为阴助之星，多女性贵人，化险为夷。」'}
-                    {star.name === '天魁' && '天魁入宫，主白天出生的贵人，男性贵人多，逢凶化吉之力。古诀：「天魁为天乙贵人，逢之必有贵人扶持。」'}
-                    {star.name === '天钺' && '天钺入宫，主夜晚出生的贵人，女性贵人多，增添吉祥之气。古诀：「天钺为玉堂贵人，主阴助，女贵人多。」'}
-                    {star.name === '禄存' && '禄存入宫，主财禄守成，该宫位有财气，但属于保守型财运。古诀：「禄存为财禄之星，主守财有余，进财稳健。」'}
-                    {star.name === '天马' && '天马入宫，主奔波动荡，动中求财，宜主动出击，不宜守株待兔。古诀：「天马主动，逢禄则财禄双全，动中生财。」'}
+                    {star.name === '文昌' && '문창은 학업, 시험, 문서, 글쓰기 관련 일에 유리합니다.'}
+                    {star.name === '文曲' && '문곡은 예술성, 표현력, 말과 글의 재능을 강화합니다.'}
+                    {star.name === '左辅' && '좌보는 귀인과 조력자를 뜻하며 해당 궁의 일이 도움을 받기 쉽습니다.'}
+                    {star.name === '右弼' && '우필은 협력과 보완의 별로, 여성 귀인이나 부드러운 지원을 뜻합니다.'}
+                    {star.name === '天魁' && '천괴는 공개적 도움과 남성 귀인의 성격이 강한 길성입니다.'}
+                    {star.name === '天钺' && '천월은 은근한 도움과 여성 귀인의 성격이 강한 길성입니다.'}
+                    {star.name === '禄存' && '녹존은 보유와 축적의 재물 기운을 뜻합니다.'}
+                    {star.name === '天马' && '천마는 이동, 변화, 외부 활동 속에서 기회를 얻는 별입니다.'}
                   </>
                 )}
                 {star.type === 'sha' && (
                   <>
-                    {star.name === '地空' && '地空入宫，主该宫位事项有落空感，精神耗散，宜注意心理健康。古诀：「地空主虚耗，入命宫者多精神迷茫，须防空想。」'}
-                    {star.name === '地劫' && '地劫入宫，主该宫位事项有意外损失，财物需谨慎，防小人。古诀：「地劫主劫财，入命宫者财运受损，防意外之失。」'}
-                    {star.name === '火星' && '火星入宫，主该宫位事项急躁冲动，情绪波动，但若遇贪狼则反吉。古诀：「火星主急燥，然遇贪狼同宫，反为火贪格，主暴发。」'}
-                    {star.name === '铃星' && '铃星入宫，主该宫位事项有暗中阻碍，防背后小人，凡事宜低调。古诀：「铃星主暗煞，入命者多暗中受敌，须防背后是非。」'}
-                    {star.name === '擎羊' && '擎羊入宫，主刑克，该宫位事项多波折，有血光之灾或意外。古诀：「擎羊为刑克之星，入命宫者多刑克，须防意外血光。」'}
-                    {star.name === '陀罗' && '陀罗入宫，主是非缠身，该宫位事项拖延不决，凡事宜早做准备。古诀：「陀罗主是非拖延，入命宫者做事迟缓，须防纠缠不清。」'}
+                    {star.name === '地空' && '지공은 허탈감, 공백, 정신적 소모를 뜻하므로 해당 궁의 기대치를 현실적으로 잡는 것이 좋습니다.'}
+                    {star.name === '地劫' && '지겁은 돌발 손실과 빼앗김의 상징이므로 재물과 계약을 신중히 봐야 합니다.'}
+                    {star.name === '火星' && '화성은 급함, 충동, 돌발 상황을 뜻하며 탐랑과 만나면 강한 추진력으로도 작동합니다.'}
+                    {star.name === '铃星' && '영성은 보이지 않는 방해와 지연을 뜻하므로 낮은 자세와 점검이 필요합니다.'}
+                    {star.name === '擎羊' && '경양은 충돌, 수술, 손상 가능성을 뜻해 무리한 선택을 피해야 합니다.'}
+                    {star.name === '陀罗' && '타라는 지연, 얽힘, 반복되는 시비를 뜻하므로 미리 정리하고 움직이는 편이 좋습니다.'}
                   </>
                 )}
               </div>

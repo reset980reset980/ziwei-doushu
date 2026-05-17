@@ -12,6 +12,7 @@ import { FAMOUS_PERSONS } from '@/lib/ziwei/famous';
 import type { BirthInfo, ZiweiChart, Star, Palace } from '@/lib/ziwei/types';
 import { formToSearchParams, searchParamsToForm, formToBirthInfo } from '@/lib/ziwei/share';
 import { useHistory } from '@/lib/ziwei/history';
+import { palaceLabel, siHuaLabel, starLabel } from '@/lib/ziwei/labels';
 
 export default function ChartPage() {
   const router = useRouter();
@@ -42,10 +43,19 @@ export default function ChartPage() {
     const formData = searchParamsToForm(params);
     if (!formData?.year) return;
     const fullForm: BirthFormState = {
-      name: '', year: '', month: '', day: '',
-      clockHour: '8', clockMinute: '0', unknownTime: false,
-      province: '', city: '', longitude: 120, gender: 'male',
-      ...formData,
+      name: formData.name ?? '',
+      year: formData.year ?? '',
+      month: formData.month ?? '',
+      day: formData.day ?? '',
+      clockHour: formData.clockHour ?? '8',
+      clockMinute: formData.clockMinute ?? '0',
+      unknownTime: formData.unknownTime ?? false,
+      province: formData.province ?? '',
+      city: formData.city ?? '',
+      gender: formData.gender ?? 'male',
+      calendarType: formData.calendarType ?? 'solar',
+      isLeapMonth: formData.isLeapMonth ?? false,
+      longitude: formData.longitude ?? 126.98,
     };
     setSavedForm(fullForm);
     handleSubmit(formToBirthInfo(fullForm));
@@ -63,14 +73,14 @@ export default function ChartPage() {
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error ?? '命盘生成失败');
+        throw new Error(data.error ?? '명반 생성에 실패했습니다');
       }
       const data: ZiweiChart = await res.json();
       setChart(data);
       setFocus(null);
       setView('mingpan');
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : '生成失败，请重试');
+      setError(e instanceof Error ? e.message : '생성에 실패했습니다. 다시 시도해 주세요.');
     } finally {
       setLoading(false);
     }
@@ -94,7 +104,7 @@ export default function ChartPage() {
   //                  ② 用户主动选择分享多少信息
   //                  ③ 链接生成短码避免 URL 暴露
   const handleShare = () => {
-    alert('分享功能正在完善中（隐私脱敏方案）— 公测版本将正式开放');
+    alert('공유 기능은 개인정보 비식별 처리 후 공개할 예정입니다.');
   };
 
   // 计算分享 URL（OG 卡片图改为前端 Canvas 渲染，不再走 SSR）
@@ -113,15 +123,15 @@ export default function ChartPage() {
 
   // ── 命盘交互回调 ──────────────────────────────────────────
   const handleStarClick = (star: Star, palace: Palace) => {
-    setFocus({ type: 'star', label: `${star.name} · ${palace.name}`, star, palace });
+    setFocus({ type: 'star', label: `${starLabel(star.name)} · ${palaceLabel(palace.name)}`, star, palace });
   };
 
   const handlePalaceClick = (palace: Palace) => {
-    setFocus({ type: 'palace', label: palace.name, palace });
+    setFocus({ type: 'palace', label: palaceLabel(palace.name), palace });
   };
 
   const handleSiHuaBadgeClick = (starName: string, siHua: string) => {
-    setFocus({ type: 'sihua', label: `${starName} 化${siHua}`, siHua });
+    setFocus({ type: 'sihua', label: `${starLabel(starName)} 화${siHuaLabel(siHua)}`, siHua });
   };
 
   // ─────────────────────────────────────────────────────────
@@ -158,10 +168,10 @@ export default function ChartPage() {
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.color = 'var(--tx-3)'; }}
             >
               <span style={{ fontSize: '16px' }}>‹</span>
-              <span>返回</span>
+              <span>대시보드</span>
             </button>
             <div style={{ width: '1px', height: '20px', background: 'var(--bdr-med)' }} />
-            <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>紫微命盘</span>
+            <span style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em' }}>자미두수 명반</span>
           </header>
 
           {/* 表单内容 */}
@@ -171,10 +181,10 @@ export default function ChartPage() {
                 ☯
               </div>
               <h1 style={{ fontSize: '20px', fontWeight: 600, letterSpacing: '0.2em', color: 'var(--tx-0)', marginBottom: '8px' }}>
-                起紫微命盘
+                자미두수 명반
               </h1>
               <p style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.05em' }}>
-                输入出生年月日时 · 以公历为准
+                양력 또는 음력 생년월일시를 입력하면 명반과 운의 흐름을 계산합니다
               </p>
             </div>
 
@@ -213,7 +223,7 @@ export default function ChartPage() {
             {history.length > 0 && (
               <div style={{ marginTop: '40px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                  <span style={{ fontSize: '10px', letterSpacing: '0.4em', color: 'var(--tx-3)' }}>历史命盘</span>
+                  <span style={{ fontSize: '10px', letterSpacing: '0.4em', color: 'var(--tx-3)' }}>최근 명반</span>
                   <div style={{ flex: 1, height: '1px', background: 'var(--bdr)' }} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
@@ -319,7 +329,7 @@ export default function ChartPage() {
                     el.style.borderColor = 'var(--bdr)';
                   }}
                 >
-                  重新起盘
+                  다시 입력
                 </button>
               </div>
             </div>

@@ -1,13 +1,18 @@
 export interface BirthInfo {
-  year: number;      // Gregorian year
-  month: number;     // Gregorian month (1-12)
+  year: number;      // Gregorian year, or lunar year when calendarType === 'lunar'
+  month: number;     // Gregorian month, or lunar month when calendarType === 'lunar'
   day: number;       // Gregorian day
   hour: number;      // 时辰 branch index (0=子, 1=丑, ... 11=亥)
   gender: 'male' | 'female';
+  calendarType?: 'solar' | 'lunar';
+  isLeapMonth?: boolean;
   name?: string;
   province?: string;   // 出生省份
   city?: string;       // 出生城市
   longitude?: number;  // 出生地经度（用于真太阳时校正）
+  solarYear?: number;
+  solarMonth?: number;
+  solarDay?: number;
 }
 
 export interface LunarInfo {
