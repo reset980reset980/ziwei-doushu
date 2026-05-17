@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import type { ZiweiChart } from '@/lib/ziwei/types';
 import type { TimeView } from '@/components/TimeNav';
 
@@ -14,6 +13,7 @@ interface TopBarProps {
   onViewChange: (view: TimeView) => void;
   onYearChange: (year: number) => void;
   onMonthChange: (month: number) => void;
+  onHome?: () => void;
   onShare?: () => void;
   onExport?: () => void;
   copied?: boolean;
@@ -27,11 +27,11 @@ export default function TopBar({
   onViewChange,
   onYearChange,
   onMonthChange,
+  onHome,
   onShare,
   onExport,
   copied,
 }: TopBarProps) {
-  const router = useRouter();
   const tabs: { key: TimeView; label: string }[] = [
     { key: 'mingpan', label: '본명' },
     { key: 'daxian', label: '대한' },
@@ -41,7 +41,7 @@ export default function TopBar({
   return (
     <header className="chart-topbar no-print">
       <button
-        onClick={() => router.push('/chart')}
+        onClick={onHome}
         style={{ background: 'none', border: 0, color: 'var(--tx-3)', cursor: 'pointer', fontSize: 13 }}
       >
         자미두수 대시보드

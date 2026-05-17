@@ -288,6 +288,7 @@ export default function ChartPage() {
             onViewChange={setView}
             onYearChange={setLiunianYear}
             onMonthChange={setLiuyueMonth}
+            onHome={handleReset}
             onShare={savedForm ? handleShare : undefined}
             onExport={() => window.print()}
             copied={copied}
