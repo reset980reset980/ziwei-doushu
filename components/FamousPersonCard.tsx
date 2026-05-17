@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import type { FamousPerson } from '@/lib/ziwei/famous';
 
 const CATEGORY_COLORS: Record<string, string> = {
-  '商业': '#4ade80',
-  '文艺': '#c084fc',
-  '科技': '#60a5fa',
-  '体育': '#fb923c',
-  '历史': '#facc15',
+  '비즈니스': '#4ade80',
+  '예술': '#c084fc',
+  '기술': '#60a5fa',
+  '스포츠': '#fb923c',
+  '역사': '#facc15',
 };
 
 export default function FamousPersonCard({ person }: { person: FamousPerson }) {
@@ -25,7 +25,7 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
     >
       <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
         <span style={{ color: catColor, opacity: 0.9, fontSize: '12px' }}>★</span>
-        名人命盘
+        유명인 명반
         <span className="text-[9px] px-2 py-0.5 rounded-full ml-auto"
           style={{ color: catColor, background: catColor + '18', border: `1px solid ${catColor}40` }}>
           {person.category}
@@ -38,7 +38,7 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
             {person.name}
           </span>
           <span className="text-[11px]" style={{ color: 'var(--t-faint)' }}>
-            {person.year}年 · {person.gender === 'male' ? '男命' : '女命'}
+            {person.year}년 · {person.gender === 'male' ? '남성' : '여성'}
           </span>
         </div>
 
@@ -52,12 +52,12 @@ export default function FamousPersonCard({ person }: { person: FamousPerson }) {
             background: catColor + '0c',
             border: `1px solid ${catColor}25`,
           }}>
-          <span style={{ color: catColor, fontWeight: 600, marginRight: '4px' }}>命盘亮点：</span>
+          <span style={{ color: catColor, fontWeight: 600, marginRight: '4px' }}>명반 포인트:</span>
           {person.notable}
         </div>
 
         <div className="text-[10px] mt-2" style={{ color: 'var(--t-faint)', opacity: 0.6, lineHeight: 1.5 }}>
-          ⚠️ 出生时辰为公开文献估算值，仅供研究参考。下方 AI 解读基于此命盘自动生成，与本人无关。
+          공개 자료를 바탕으로 추정한 출생시이므로 연구 참고용입니다. 아래 AI 해석은 이 명반 기준으로 자동 생성되며 본인과 무관합니다.
         </div>
       </div>
     </motion.div>

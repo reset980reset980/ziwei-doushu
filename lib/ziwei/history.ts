@@ -11,27 +11,32 @@ export interface HistoryEntry {
   savedAt: number;
 }
 
+function formatHistoryLabel(form: BirthFormState) {
+  return [
+    form.name,
+    `${form.calendarType === 'lunar' ? '음력' : '양력'} ${form.year}년 ${form.month}월 ${form.day}일`,
+    form.city || form.province || '',
+    form.gender === 'male' ? '남성' : '여성',
+  ].filter(Boolean).join(' · ');
+}
+
 export function useHistory() {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) setHistory(JSON.parse(raw));
+      if (raw) {
+        const entries = JSON.parse(raw) as HistoryEntry[];
+        setHistory(entries.map((entry) => ({ ...entry, label: formatHistoryLabel(entry.form) })));
+      }
     } catch { /* localStorage 不可用时静默失败 */ }
   }, []);
 
   const save = useCallback((form: BirthFormState) => {
-    const label = [
-      form.name,
-      `${form.year}年${form.month}月${form.day}日`,
-      form.city || form.province || '',
-      form.gender === 'male' ? '男' : '女',
-    ].filter(Boolean).join(' · ');
-
     const entry: HistoryEntry = {
       id: Date.now().toString(),
-      label,
+      label: formatHistoryLabel(form),
       form,
       savedAt: Date.now(),
     };

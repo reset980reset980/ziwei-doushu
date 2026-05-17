@@ -6,11 +6,12 @@
 
 import Link from 'next/link';
 import { ALL_BOOKS, TOTAL_PARAGRAPHS } from '@/lib/classics';
+import { koreanizeZiweiText } from '@/lib/ziwei/labels';
 import LibrarySearch from './LibrarySearch';
 
 export const metadata = {
-  title: '倪师方法论 · 古籍原典库 · 紫微斗数全集 / 全书 / 骨髓赋',
-  description: '紫微斗数权威古籍全文检索：《紫微斗数全集》《紫微斗数全书》《骨髓赋》倪海夏《天纪》引证来源',
+  title: '니하이샤 체계 · 자미두수 고전 원문 자료실',
+  description: '자미두수 고전 원문을 검색하고 니하이샤 천기 체계의 근거 문헌을 확인하는 자료실입니다.',
 };
 
 export default function LibraryHomePage() {
@@ -20,13 +21,13 @@ export default function LibraryHomePage() {
       <div className="px-6 py-4 flex items-center justify-between"
         style={{ borderBottom: '1px solid rgba(184,146,42,0.15)', background: 'var(--bg-page)' }}>
         <Link href="/" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.3em', textDecoration: 'none' }}>
-          ← 返回首页
+          ← 홈으로
         </Link>
         <div style={{ fontSize: '12px', color: 'var(--tx-3)', letterSpacing: '0.3em' }}>
-          古籍原典库 · CLASSICS
+          고전 원문 자료실 · CLASSICS
         </div>
         <Link href="/chart" style={{ fontSize: '12px', color: 'var(--ac)', letterSpacing: '0.2em', textDecoration: 'none' }}>
-          起盘 →
+          명반 만들기 →
         </Link>
       </div>
 
@@ -38,11 +39,11 @@ export default function LibraryHomePage() {
           <div style={{ height: '1px', width: '48px', background: 'linear-gradient(to left, transparent, rgba(184,146,42,0.4))' }} />
         </div>
         <h1 style={{ fontSize: 'clamp(28px, 4vw, 42px)', fontWeight: 700, color: 'var(--tx-0)', letterSpacing: '0.15em', marginBottom: '12px' }}>
-          倪师方法论 · 古籍原典库
+          니하이샤 체계 · 고전 원문 자료실
         </h1>
         <p style={{ fontSize: '14px', color: 'var(--tx-2)', letterSpacing: '0.1em', maxWidth: '600px', margin: '0 auto', lineHeight: 1.7 }}>
-          紫微斗数权威古籍全文检索<br />
-          收录 <strong style={{ color: 'var(--ac)' }}>{ALL_BOOKS.length}</strong> 部古籍 · 共 <strong style={{ color: 'var(--ac)' }}>{TOTAL_PARAGRAPHS}</strong> 段精华
+          자미두수 고전 원문 검색<br />
+          총 <strong style={{ color: 'var(--ac)' }}>{ALL_BOOKS.length}</strong>권 · <strong style={{ color: 'var(--ac)' }}>{TOTAL_PARAGRAPHS}</strong>개 문단 수록
         </p>
       </div>
 
@@ -71,18 +72,18 @@ export default function LibraryHomePage() {
               className="hover:shadow-lg"
             >
               <div style={{ fontSize: '11px', color: 'var(--tx-3)', letterSpacing: '0.2em', marginBottom: '6px' }}>
-                {book.dynasty} · {book.author.split(' ')[0]}
+                {koreanizeZiweiText(book.dynasty)} · {koreanizeZiweiText(book.author.split(' ')[0])}
               </div>
               <div style={{ fontSize: '20px', fontWeight: 600, color: 'var(--tx-0)', marginBottom: '10px', letterSpacing: '0.1em' }}>
-                《{book.title}》
+                《{koreanizeZiweiText(book.title)}》
               </div>
               <div style={{ fontSize: '12px', color: 'var(--tx-2)', lineHeight: 1.7, marginBottom: '14px' }}>
-                {book.intro}
+                {koreanizeZiweiText(book.intro)}
               </div>
               <div style={{ display: 'flex', gap: '12px', fontSize: '11px', color: 'var(--tx-3)' }}>
-                <span>{book.chapters.length} 章节</span>
+                <span>{book.chapters.length}장</span>
                 <span style={{ color: 'rgba(184,146,42,0.4)' }}>·</span>
-                <span>{book.chapters.reduce((s, c) => s + c.paragraphs.length, 0)} 段精华</span>
+                <span>{book.chapters.reduce((s, c) => s + c.paragraphs.length, 0)}개 문단</span>
               </div>
               <div style={{
                 display: 'inline-flex',
@@ -92,7 +93,7 @@ export default function LibraryHomePage() {
                 letterSpacing: '0.15em',
                 fontWeight: 500,
               }}>
-                进入查阅 →
+                읽기 →
               </div>
             </Link>
           ))}
@@ -101,12 +102,12 @@ export default function LibraryHomePage() {
         {/* 底部说明 */}
         <div style={{ marginTop: '60px', padding: '24px', background: 'rgba(184,146,42,0.05)', borderRadius: '10px', textAlign: 'center' }}>
           <div style={{ fontSize: '11px', color: 'var(--ac-dim)', fontWeight: 600, letterSpacing: '0.15em', marginBottom: '8px' }}>
-            关于本库
+            자료실 안내
           </div>
           <div style={{ fontSize: '12px', color: 'var(--tx-2)', lineHeight: 1.8, maxWidth: '600px', margin: '0 auto' }}>
-            所收录古籍均为公版（明代刊本）。<br />
-            内容持续完善，未来将补全《紫微斗数全集》全本与倪海夏《天纪》引证目录。<br />
-            如发现任何错误请联系我们。
+            수록 문헌은 공개 원문을 바탕으로 정리했습니다.<br />
+            원문 자료와 니하이샤 천기 체계의 인용 근거는 계속 보강합니다.<br />
+            오류를 발견하면 알려 주세요.
           </div>
         </div>
       </div>

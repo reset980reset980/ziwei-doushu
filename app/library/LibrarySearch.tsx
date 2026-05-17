@@ -36,7 +36,7 @@ export default function LibrarySearch() {
         value={q}
         onChange={e => setQ(e.target.value)}
         onKeyDown={e => e.key === 'Enter' && submit()}
-        placeholder="搜索古籍原文，如：七杀朝斗 / 双禄朝垣 / 化忌"
+        placeholder="고전 원문 검색 예: 칠살조두 / 쌍록조원 / 화기"
         style={{
           flex: 1,
           padding: '10px 14px',
@@ -63,7 +63,7 @@ export default function LibrarySearch() {
           opacity: q.trim() ? 1 : 0.5,
         }}
       >
-        {isPending ? '…' : '搜索'}
+        {isPending ? '...' : '검색'}
       </button>
     </div>
   );

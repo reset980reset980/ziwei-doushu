@@ -74,7 +74,7 @@ export default function InsightPanel({ chart, view, liunianYear, liuyueMonth, fo
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
             {ming.keywords.map((keyword) => (
               <span key={keyword} className="sihua-badge" style={{ color: 'var(--ac)', border: '1px solid var(--ac-bdr)', background: 'var(--ac-bg)' }}>
-                {keyword}
+                {koreanizeZiweiText(keyword)}
               </span>
             ))}
           </div>

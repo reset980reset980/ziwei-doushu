@@ -20,16 +20,14 @@ export const metadata: Metadata = {
     locale: 'ko_KR',
     type: 'website',
   },
-    // Search engine verification values are optional.
+  // Search engine verification values are optional.
   verification: {
-    // Google Search Console: 在 https://search.google.com/search-console 添加站点后获取
+    // Google Search Console value can be supplied through env.
     google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION || undefined,
-    // Bing Webmaster Tools: 在 https://www.bing.com/webmasters 添加站点后获取
+    // Bing Webmaster Tools value can be supplied through env.
     other: {
       'msvalidate.01': process.env.NEXT_PUBLIC_BING_VERIFICATION || '808FFC6023A2C359B375DD860FEDA856',
-      // 百度站长（等执照下来后）
       'baidu-site-verification': process.env.NEXT_PUBLIC_BAIDU_VERIFICATION || '',
-      // 360 站长（等执照下来后）
       '360-site-verification': process.env.NEXT_PUBLIC_360_VERIFICATION || '',
     },
   },
@@ -37,7 +35,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="ko" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('ziwei-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);else document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();` }} />
       </head>

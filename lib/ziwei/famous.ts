@@ -6,7 +6,7 @@
 export interface FamousPerson {
   id: string;
   name: string;
-  category: '商业' | '文艺' | '历史' | '体育' | '科技';
+  category: '비즈니스' | '예술' | '역사' | '스포츠' | '기술';
   description: string;           // 一句话身份介绍
   year: number;
   month: number;
@@ -20,108 +20,108 @@ export const FAMOUS_PERSONS: FamousPerson[] = [
   // ─── 商业传奇 ─────────────────────────────────────────────
   {
     id: 'ma-yun',
-    name: '马云',
-    category: '商业',
-    description: '阿里巴巴创始人',
+    name: '마윈',
+    category: '비즈니스',
+    description: '알리바바 창업자',
     year: 1964, month: 9, day: 10, hour: 5,  // 约午时
     gender: 'male',
-    notable: '命盘显示极强的破格重建之力，官禄宫星曜与互联网商业帝国高度对应',
+    notable: '파격과 재구성의 힘이 강하게 보이며, 관록궁 별 배치가 인터넷 비즈니스 제국과 잘 맞물립니다.',
   },
   {
     id: 'li-jiacheng',
-    name: '李嘉诚',
-    category: '商业',
-    description: '香港超级富豪，长和系创始人',
+    name: '리카싱',
+    category: '비즈니스',
+    description: '홍콩 기업가, 청쿵그룹 창업자',
     year: 1928, month: 7, day: 29, hour: 3,  // 约寅时
     gender: 'male',
-    notable: '财帛宫四化是研究东方首富命盘的绝佳案例，禄存守财，越积越厚',
+    notable: '재백궁과 사화가 재물 축적 사례로 볼 만하며, 녹존의 보존력이 두드러집니다.',
   },
   {
     id: 'ren-zhengfei',
-    name: '任正非',
-    category: '商业',
-    description: '华为创始人',
+    name: '런정페이',
+    category: '비즈니스',
+    description: '화웨이 창업자',
     year: 1944, month: 10, day: 25, hour: 3, // 寅时
     gender: 'male',
-    notable: '七杀入命格局，一生逆风而行，越打压越强大，倪师七杀理论的活教材',
+    notable: '칠살 입명 구조로 역풍 속에서 강해지는 흐름이 뚜렷한 사례입니다.',
   },
 
   // ─── 文艺名人 ─────────────────────────────────────────────
   {
     id: 'zhang-ailing',
-    name: '张爱玲',
-    category: '文艺',
-    description: '中国现代文学巨匠',
+    name: '장아이링',
+    category: '예술',
+    description: '중국 현대문학 작가',
     year: 1920, month: 9, day: 30, hour: 1, // 丑时
     gender: 'female',
-    notable: '命盘孤独星曜组合与其传奇感情经历、文学成就形成神奇对照',
+    notable: '고독한 별 조합이 감정사와 문학적 성취의 결을 함께 보여 줍니다.',
   },
   {
     id: 'jay-chou',
-    name: '周杰伦',
-    category: '文艺',
-    description: '华语流行音乐天王',
+    name: '저우제룬',
+    category: '예술',
+    description: '중화권 대중음악 가수',
     year: 1979, month: 1, day: 18, hour: 1,  // 丑时（据报道夜间出生）
     gender: 'male',
-    notable: '文曲星与贪狼的组合，天生才艺之命，命盘解释了他为何能横跨音乐各风格',
+    notable: '문곡과 탐랑의 조합으로 재능, 표현력, 대중성이 강하게 드러납니다.',
   },
   {
     id: 'wang-fei',
-    name: '王菲',
-    category: '文艺',
-    description: '华语乐坛最具传奇色彩的女歌手',
+    name: '왕페이',
+    category: '예술',
+    description: '중화권 대표 여성 가수',
     year: 1969, month: 8, day: 8, hour: 4,   // 卯时
     gender: 'female',
-    notable: '夫妻宫星曜与其两段传奇婚姻高度对应，感情格局极具研究价值',
+    notable: '부처궁 별 배치가 관계 흐름과 맞물려 연구 가치가 있습니다.',
   },
   {
     id: 'lin-zhiling',
-    name: '林志玲',
-    category: '文艺',
-    description: '台湾名模、演员',
+    name: '린즈링',
+    category: '예술',
+    description: '대만 모델 겸 배우',
     year: 1974, month: 11, day: 29, hour: 5, // 午时
     gender: 'female',
-    notable: '太阴守命的女性美貌典范，命盘完美印证倪师"太阴入命女孩最漂亮"的论断',
+    notable: '태음 수명의 부드러운 매력과 이미지성이 잘 드러나는 사례입니다.',
   },
 
   // ─── 科技精英 ─────────────────────────────────────────────
   {
     id: 'steve-jobs',
-    name: '乔布斯',
-    category: '科技',
-    description: '苹果公司联合创始人',
+    name: '스티브 잡스',
+    category: '기술',
+    description: '애플 공동 창업자',
     year: 1955, month: 2, day: 24, hour: 6,  // 午时
     gender: 'male',
-    notable: '破军入命格局，被亲生父母遗弃又创建苹果帝国，破而后立的命盘典范',
+    notable: '파군 입명 구조로 기존 질서를 깨고 새 판을 만드는 흐름이 강합니다.',
   },
   {
     id: 'elon-musk',
-    name: '马斯克',
-    category: '科技',
-    description: '特斯拉、SpaceX创始人',
+    name: '일론 머스크',
+    category: '기술',
+    description: '테슬라, SpaceX 창업자',
     year: 1971, month: 6, day: 28, hour: 4,  // 卯时
     gender: 'male',
-    notable: '杀破狼格局的极致体现，命盘中驿马星旺盛，一生在改变人类未来边界',
+    notable: '살파랑 구조와 이동성이 강해 개척, 확장, 경계 돌파의 상징성이 큽니다.',
   },
 
   // ─── 体育明星 ─────────────────────────────────────────────
   {
     id: 'yao-ming',
-    name: '姚明',
-    category: '体育',
-    description: 'NBA传奇中锋，中国篮球代言人',
+    name: '야오밍',
+    category: '스포츠',
+    description: 'NBA 센터, 중국 농구 대표 인물',
     year: 1980, month: 9, day: 12, hour: 5,  // 午时
     gender: 'male',
-    notable: '天梁守命，高大威严，官禄宫星象与其职业成就高度吻合',
+    notable: '천량 수명의 무게감과 관록궁 흐름이 직업적 성취와 잘 맞습니다.',
   },
   {
     id: 'li-na',
-    name: '李娜',
-    category: '体育',
-    description: '中国网球大满贯得主',
+    name: '리나',
+    category: '스포츠',
+    description: '중국 테니스 그랜드슬램 우승자',
     year: 1982, month: 2, day: 26, hour: 2,  // 寅时
     gender: 'female',
-    notable: '七杀化气，命中注定与人竞争，大限流年与法网夺冠时间点精准对应',
+    notable: '칠살의 경쟁성이 강하며, 승부와 돌파의 흐름을 보기 좋은 사례입니다.',
   },
 ];
 
@@ -132,5 +132,5 @@ export function getFamousByCategory(category: FamousPerson['category']): FamousP
 
 /** 获取所有分类 */
 export const FAMOUS_CATEGORIES: FamousPerson['category'][] = [
-  '商业', '文艺', '科技', '体育',
+  '비즈니스', '예술', '기술', '스포츠',
 ];

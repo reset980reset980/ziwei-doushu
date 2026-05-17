@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart, Palace, Star } from '@/lib/ziwei/types';
-import { branchLabel, palaceLabel } from '@/lib/ziwei/labels';
+import { branchLabel, koreanizeZiweiText, palaceLabel } from '@/lib/ziwei/labels';
 import PalaceCell from './PalaceCell';
 import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './TimeNav';
 
@@ -162,7 +162,7 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
             <div className="text-[10px] space-y-0.5" style={{ color: 'var(--t-faint)' }}>
               <div>명궁 <span style={{ color: 'var(--t-gold)', opacity: 0.7 }}>{branchLabel(chart.mingGongBranch)}</span></div>
               <div>신궁 <span className="text-sky-500/70">{branchLabel(chart.shenGongBranch)}</span></div>
-              <div className="text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{chart.wuxingJuName}</div>
+              <div className="text-[9px]" style={{ color: 'var(--t-gold)', opacity: 0.75 }}>{koreanizeZiweiText(chart.wuxingJuName)}</div>
             </div>
           </div>
 
